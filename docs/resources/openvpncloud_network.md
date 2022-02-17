@@ -69,4 +69,4 @@ A network can be imported using the network ID, which can be fetched directly fr
 terraform import openvpncloud_network.network <network-uuid>
 ```
 
-~> NOTE: This will only import the network itslef, but it'll create a new connector and a new route as its defaults. There is currently no way to import an existing connector and route along with a network. The existing connector(s)/route(s) will continue to work, but you'll need to set a `default_connector` and a `default_route` that don't collide with your existing resources.
+~> NOTE: This will only import the network itself, but it'll create a new connector and a new route as its defaults. There is currently no way to import an existing connector and route along with a network. The existing connector(s)/route(s) will continue to work, but you'll need to set a `default_connector` and a `default_route` that don't collide with your existing resources.
