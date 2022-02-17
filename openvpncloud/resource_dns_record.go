@@ -2,10 +2,11 @@ package openvpncloud
 
 import (
 	"context"
-	"github.com/kaiden-rxmg/terraform-provider-openvpncloud/client"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/kaiden-rxmg/terraform-provider-openvpncloud/client"
 )
 
 func resourceDnsRecord() *schema.Resource {
@@ -21,7 +22,10 @@ func resourceDnsRecord() *schema.Resource {
 			"domain": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"ip_v4_addresses": {
 				Type:     schema.TypeList,
@@ -47,6 +51,7 @@ func resourceDnsRecordCreate(ctx context.Context, d *schema.ResourceData, m inte
 	c := m.(*client.Client)
 	var diags diag.Diagnostics
 	domain := d.Get("domain").(string)
+	description := d.Get("description").(string)
 	ipV4Addresses := d.Get("ip_v4_addresses").([]interface{})
 	ipV4AddressesSlice := make([]string, 0)
 	for _, a := range ipV4Addresses {
@@ -59,6 +64,7 @@ func resourceDnsRecordCreate(ctx context.Context, d *schema.ResourceData, m inte
 	}
 	dr := client.DnsRecord{
 		Domain:        domain,
+		Description:   description,
 		IPV4Addresses: ipV4AddressesSlice,
 		IPV6Addresses: ipV6AddressesSlice,
 	}
@@ -82,6 +88,7 @@ func resourceDnsRecordRead(ctx context.Context, d *schema.ResourceData, m interf
 		d.SetId("")
 	} else {
 		d.Set("domain", r.Domain)
+		d.Set("description", r.Description)
 		d.Set("ip_v4_addresses", r.IPV4Addresses)
 		d.Set("ip_v6_addresses", r.IPV6Addresses)
 	}
@@ -92,6 +99,7 @@ func resourceDnsRecordUpdate(ctx context.Context, d *schema.ResourceData, m inte
 	c := m.(*client.Client)
 	var diags diag.Diagnostics
 	_, domain := d.GetChange("domain")
+	_, description := d.GetChange("description")
 	_, ipV4Addresses := d.GetChange("ip_v4_addresses")
 	ipV4AddressesSlice := getAddressesSlice(ipV4Addresses.([]interface{}))
 	_, ipV6Addresses := d.GetChange("ip_v6_addresses")
@@ -99,6 +107,7 @@ func resourceDnsRecordUpdate(ctx context.Context, d *schema.ResourceData, m inte
 	dr := client.DnsRecord{
 		Id:            d.Id(),
 		Domain:        domain.(string),
+		Description:   description.(string),
 		IPV4Addresses: ipV4AddressesSlice,
 		IPV6Addresses: ipV6AddressesSlice,
 	}
@@ -112,8 +121,8 @@ func resourceDnsRecordUpdate(ctx context.Context, d *schema.ResourceData, m inte
 func resourceDnsRecordDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	c := m.(*client.Client)
 	var diags diag.Diagnostics
-	routeId := d.Id()
-	err := c.DeleteDnsRecord(routeId)
+	recordId := d.Id()
+	err := c.DeleteDnsRecord(recordId)
 	if err != nil {
 		return append(diags, diag.FromErr(err)...)
 	}

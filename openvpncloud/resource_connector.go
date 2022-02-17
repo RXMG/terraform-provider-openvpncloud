@@ -13,7 +13,6 @@ func resourceConnector() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectorCreate,
 		ReadContext:   resourceConnectorRead,
-		UpdateContext: resourceConnectorUpdate,
 		DeleteContext: resourceConnectorDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -96,31 +95,6 @@ func resourceConnectorRead(ctx context.Context, d *schema.ResourceData, m interf
 		d.Set("ip_v6_address", connector.IPv6Address)
 	}
 	return diags
-}
-
-func resourceConnectorUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	c := m.(*client.Client)
-	var diags diag.Diagnostics
-	name := d.Get("name").(string)
-	networkItemId := d.Get("network_item_id").(string)
-	networkItemType := d.Get("network_item_type").(string)
-	vpnRegionId := d.Get("vpn_region_id").(string)
-	connector := client.Connector{
-		Name:            name,
-		NetworkItemId:   networkItemId,
-		NetworkItemType: networkItemType,
-		VpnRegionId:     vpnRegionId,
-	}
-	conn, err := c.UpdateNetworkConnector(connector)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	d.SetId(conn.Id)
-	return append(diags, diag.Diagnostic{
-		Severity: diag.Warning,
-		Summary:  "Connector needs to be set up manually",
-		Detail:   "Terraform only creates the OpenVPN Cloud connector object, but additional manual steps are required to associate a host in your infrastructure with this connector. Go to https://openvpn.net/cloud-docs/connector/ for more information.",
-	})
 }
 
 func resourceConnectorDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

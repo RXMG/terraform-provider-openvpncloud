@@ -82,7 +82,7 @@ func (c *Client) UpdateNetworkConnector(connector Connector) (*Connector, error)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/api/beta/connectors/%s?networkItemId=%s&networkItemType=%s", c.BaseURL, connector.Id, connector.NetworkItemId, connector.NetworkItemType), bytes.NewBuffer(connectorJson))
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/api/beta/connectors/%s?networkItemId=%s&networkItemType=%s", c.BaseURL, connector.Id, connector.NetworkItemId, connector.NetworkItemType), bytes.NewBuffer(connectorJson))
 	if err != nil {
 		return nil, err
 	}
