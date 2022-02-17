@@ -55,16 +55,20 @@ func (c *Client) GetNetworkByName(name string) (*Network, error) {
 }
 
 func (c *Client) GetNetworkById(networkId string) (*Network, error) {
-	networks, err := c.GetNetworks()
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/beta/networks/%s", c.BaseURL, networkId), nil)
 	if err != nil {
 		return nil, err
 	}
-	for _, n := range networks {
-		if n.Id == networkId {
-			return &n, nil
-		}
+	body, err := c.DoRequest(req)
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
+	var network Network
+	err = json.Unmarshal(body, &network)
+	if err != nil {
+		return nil, err
+	}
+	return &network, nil
 }
 
 func (c *Client) CreateNetwork(network Network) (*Network, error) {

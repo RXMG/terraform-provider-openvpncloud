@@ -134,10 +134,10 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 	}
 	d.SetId(network.Id)
 	configRoute := d.Get("default_route").([]interface{})[0].(map[string]interface{})
-	defaultRoute, err := c.CreateRoute(network.Id, client.Route{
+	defaultRoute, err := c.CreateRoute(client.Route{
 		Type:  configRoute["type"].(string),
 		Value: configRoute["value"].(string),
-	})
+	}, network.Id)
 	if err != nil {
 		return append(diags, diag.FromErr(err)...)
 	}
@@ -263,7 +263,7 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 				Type:  routeType.(string),
 				Value: routeValue.(string),
 			}
-			defaultRoute, err := c.CreateRoute(d.Id(), route)
+			defaultRoute, err := c.CreateRoute(route, d.Id())
 			if err != nil {
 				return append(diags, diag.FromErr(err)...)
 			}
@@ -285,7 +285,7 @@ func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interf
 				Type:  routeType.(string),
 				Value: routeValue.(string),
 			}
-			err := c.UpdateRoute(d.Id(), route)
+			_, err := c.UpdateRoute(route, d.Id())
 			if err != nil {
 				diags = append(diags, diag.FromErr(err)...)
 			}

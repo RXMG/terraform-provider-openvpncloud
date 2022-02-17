@@ -9,10 +9,6 @@ import (
 	"github.com/kaiden-rxmg/terraform-provider-openvpncloud/client"
 )
 
-// type Token struct {
-// 	AccessToken string `json:"access_token"`
-// }
-
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
