@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -83,11 +84,27 @@ func (c *Client) UpdateRoute(route Route, networkId string) (*Route, error) {
 }
 
 func (c *Client) DeleteRoute(networkId string, routeId string) error {
+	return c.DeleteRouteHelper(networkId, routeId, 3)
+}
+
+func (c *Client) DeleteRouteHelper(networkId string, routeId string, retries int) error {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/api/beta/networks/%s/routes/%s", c.BaseURL, networkId, routeId), nil)
 	if err != nil {
 		return err
 	}
+
 	_, err = c.DoRequest(req)
+	if err != nil {
+		return err
+	}
+
+	r, err := c.GetNetworkRoute(networkId, routeId)
+	if r != nil {
+		if retries > 0 {
+			return c.DeleteRouteHelper(networkId, routeId, retries-1)
+		}
+		return errors.New("could not delete route")
+	}
 	return err
 }
 
